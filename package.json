@@ -7,7 +7,8 @@
     "format": "npx prettier '**/*.{js,mjs,json,md}' --write --loglevel error",
     "lint": "npx eslint \"**/*.js\"",
     "test": "npx mocha '**/*.+(spec|test).js' -p",
-    "benchmark": "node ./benchmark.js"
+    "benchmark": "node ./benchmark.js",
+    "try": "node ./try.js"
   },
   "repository": {
     "type": "git",

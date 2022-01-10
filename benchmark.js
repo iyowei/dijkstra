@@ -1,16 +1,44 @@
+/* eslint-disable */
+
 import Benchmark from 'benchmark';
+import {
+  grapher,
+  addEdge,
+  find,
+  deleteNode,
+  deleteDependence,
+  detect,
+} from './dijkstra.js';
 
-const BENCHMARK_SUITE_INS = new Benchmark.Suite();
+const graph = grapher();
+graph.acyclic = true;
+graph.source = true;
 
-// 注意：测试对象实例化或初始化放这里，或者
+addEdge('one', 'two', 5, graph);
+addEdge('one', 'three', 2, graph);
+addEdge('three', 'two', 8, graph);
 
-BENCHMARK_SUITE_INS.add('case 1', () => {
-  // 测试用例 1
+addEdge('three', 'five', 7, graph);
+
+addEdge('two', 'four', 4, graph);
+
+addEdge('two', 'five', 2, graph);
+addEdge('four', 'five', 6, graph);
+
+addEdge('four', 'final', 3, graph);
+
+addEdge('five', 'final', 1, graph);
+
+const SUITE = new Benchmark.Suite();
+
+SUITE.add('dijkstra', function () {
+  find({
+    startNode: 'one',
+    endNode: 'finals',
+    graph,
+  });
 })
-  .add('case 2', () => {
-    // 测试用例 2
-  })
-  .on('cycle', (event) => {
+  .on('cycle', function (event) {
     console.log(String(event.target));
   })
   .run({ async: true });

@@ -20,7 +20,7 @@ function createOrUpdateFromNode(ins, fromNodeId, forwardNodeId, weight) {
       childs: new Map(
         Object.entries({
           [forwardNodeId]: weight,
-        })
+        }),
       ),
       parent: new Set(),
       depth,
@@ -192,8 +192,8 @@ function findEffect(neighbor, cheapestNode, ins) {
     if (ins.pathCosts.get(neighborName) > newPathCost) {
       console.log(
         `${neighborName} 的既有消耗记录是 ${ins.pathCosts.get(
-          neighborName
-        )}，比目前最少权重节点 ${cheapestNodeName}（${cheapestNodeCost}） + 它到 ${neighborName} 节点的消耗（${neighborCost}）还要大，所以更新为后者之和 ${newPathCost}`
+          neighborName,
+        )}，比目前最少权重节点 ${cheapestNodeName}（${cheapestNodeCost}） + 它到 ${neighborName} 节点的消耗（${neighborCost}）还要大，所以更新为后者之和 ${newPathCost}`,
       );
     }
 
@@ -214,14 +214,14 @@ export function find({ startNode, endNode, graph: ins }) {
 
     const cheapestNodeName = cheapestNode[0];
 
-    console.log("cheapestNodeName", cheapestNodeName);
+    console.log('cheapestNodeName', cheapestNodeName);
 
     const cheapestNodeNeighbors = ins.content.get(cheapestNodeName).childs;
 
-    console.log("cheapestNodeNeighbors", cheapestNodeNeighbors);
+    console.log('cheapestNodeNeighbors', cheapestNodeNeighbors);
 
     if (cheapestNodeNeighbors.size === 0) {
-      console.log("最少权重路径终点没有邻居了，也没必要爬别的节点了");
+      console.log('最少权重路径终点没有邻居了，也没必要爬别的节点了');
       break;
     }
 
@@ -229,7 +229,7 @@ export function find({ startNode, endNode, graph: ins }) {
       console.log(`最少权重路径终点 ${cheapestNodeName} 有 1 个邻居`);
       // TODO: 但，"2 次数据转换"，"1 次循环"，两者哪个更耗时呢？
       const neighbor = Object.entries(
-        Object.fromEntries(cheapestNodeNeighbors)
+        Object.fromEntries(cheapestNodeNeighbors),
       )[0];
 
       findEffect(neighbor, cheapestNode, ins);
@@ -246,15 +246,15 @@ export function find({ startNode, endNode, graph: ins }) {
     ins.processed.add(cheapestNodeName);
 
     console.log(
-      "目前的可用权重记录",
+      '目前的可用权重记录',
       new Map(
         Object.entries(Object.fromEntries(ins.pathCosts)).filter(
-          (cur) => !ins.processed.has(cur[0])
-        )
-      )
+          (cur) => !ins.processed.has(cur[0]),
+        ),
+      ),
     );
 
-    console.log("完整权重记录", ins.pathCosts);
+    console.log('完整权重记录', ins.pathCosts);
 
     if (cheapestNodeName === endNode) {
       console.log(`最实惠的路径终点即 ${endNode}，没必要爬别的节点了`);
@@ -263,7 +263,7 @@ export function find({ startNode, endNode, graph: ins }) {
 
     cheapestNode = getCheapestNode(ins); // 找到消耗记录里消耗最少的节点
     console.log(
-      `已爬过节点 ${cheapestNodeName}，接下来爬 ${cheapestNode[0]} \n`
+      `已爬过节点 ${cheapestNodeName}，接下来爬 ${cheapestNode[0]} \n`,
     );
   }
 
@@ -401,7 +401,7 @@ export function deleteDependence(nodeOneId, nodeTwoId, ins) {
 
       // console.log(`deleteDependence: 节点 "${tmp.child}" 只有 1 个子节点`);
       const childNodeId = Object.entries(
-        Object.fromEntries(childsFromGivenChildNode)
+        Object.fromEntries(childsFromGivenChildNode),
       )[0][0];
 
       // console.log("检查这个子节点有没有其它父节点，没有的话，就不能删除 A");
