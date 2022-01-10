@@ -1,0 +1,10 @@
+{
+  "timeout": 120000,
+  "ui": "bdd",
+  "color": true,
+  "fullStackTrace": true,
+  "checkLeaks": true,
+  "retries": 2,
+  "exclude": ["node_modules/**"],
+  "parallel": true
+}
