@@ -1,6 +1,6 @@
 {
   "name": "@iyowei/dijkstra",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "找到两个顶点之间的最短路径。",
   "main": "dijkstra.js",
   "scripts": {
