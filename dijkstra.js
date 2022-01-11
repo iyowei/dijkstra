@@ -12,6 +12,7 @@ export function grapher() {
 
     depth: 0,
     groupByDepth: new Map(),
+    shortestPathWeight: 0,
 
     source: false,
     acyclic: false,
@@ -344,6 +345,12 @@ export function find({ startNode, endNode, graph: ins }) {
 
   return {
     get path() {
+      // TODO: 提供参数构造器，如果用户未提供不存在的节点，提示的同时使用默认节点查询，避免这里的判断影响性能
+      if (!ins.content.has(startNode) || !ins.content.has(endNode)) {
+        // console.log('未找到节点');
+        return null;
+      }
+
       if (
         ins.content.get(endNode).depth - ins.content.get(startNode).depth ===
         1
@@ -354,21 +361,21 @@ export function find({ startNode, endNode, graph: ins }) {
 
       if (!ins.order.has(endNode)) {
         // 未找到最短路径
-        return -1;
+        return null;
       }
 
-      const road = [endNode];
+      const SHORTEST_PATH = [endNode];
 
       let s = ins.order.get(endNode);
 
       while (s) {
-        road.unshift(s);
+        SHORTEST_PATH.unshift(s);
         s = ins.order.get(s);
       }
 
-      road.unshift(startNode);
+      SHORTEST_PATH.unshift(startNode);
 
-      return road;
+      return SHORTEST_PATH;
     },
     weight: ins.shortestPathWeight,
   };
