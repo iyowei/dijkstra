@@ -3,14 +3,19 @@
 export function grapher() {
   return {
     content: new Map(),
+
+    sourceNode: undefined,
+
     order: new Map(),
     pathCosts: new Map(),
-    sourceNode: undefined,
     processed: new Set(),
-    source: false,
-    acyclic: false,
+
     depth: 0,
     groupByDepth: new Map(),
+
+    source: false,
+    acyclic: false,
+
     update(key, value) {
       this[key] = value;
     },
@@ -343,7 +348,7 @@ export function find({ startNode, endNode, graph: ins }) {
 
       return road;
     },
-    qz: ins.pathCosts.get(endNode),
+    weight: ins.pathCosts.get(endNode),
   };
 }
 
