@@ -22,7 +22,8 @@ export function grapher() {
   };
 }
 
-export function detect(fromNodeId, forwardNodeId, ins) {
+// 检测是否无环
+export function isAcyclic(fromNodeId, forwardNodeId, ins) {
   let tmp = 1;
   let n = 0;
 
@@ -35,7 +36,7 @@ export function detect(fromNodeId, forwardNodeId, ins) {
       break;
     }
     const parentNodeId = entries.next().value[0];
-    const s = detect(parentNodeId, forwardNodeId, ins);
+    const s = isAcyclic(parentNodeId, forwardNodeId, ins);
 
     if (s === -1) {
       tmp = -1;
@@ -117,7 +118,84 @@ function createOrUpdateForwardNode(ins, fromNodeId, forwardNodeId) {
   }
 }
 
-// TODO: 可重复设置吗？
+function clearInstanceSideEffectData(ins) {
+  // console.log('清空查找副作用数据');
+  ins.processed.clear();
+  ins.order.clear();
+  ins.pathCosts.clear();
+}
+
+// 已在 find 函数处确保 getCheapestNode() 每次从最小体积的 pathCosts 集合中寻找到最少权重节点
+function getCheapestNode(ins) {
+  let tmpCost = Number.POSITIVE_INFINITY;
+  let tmpNode = null;
+
+  ins.pathCosts.forEach((nodeCost, nodeName) => {
+    // nodeCost >= tmpCost 都不更新，以此得出最小路径权重节点
+    if (nodeCost < tmpCost) {
+      tmpCost = nodeCost;
+      tmpNode = nodeName;
+    }
+  });
+
+  return [tmpNode, tmpCost];
+}
+
+// 查找最短路径时的副作用
+function findEffect(neighbor, cheapestNode, ins) {
+  const [cheapestNodeName, cheapestNodeCost] = cheapestNode;
+  const [neighborName, neighborCost] = neighbor;
+
+  const tempNewPathCost = cheapestNodeCost + neighborCost;
+
+  /**
+   * 如果邻居还没有消耗记录，或者，邻居有消耗记录，但是它的
+   * 消耗比 "当前节点的权重 + 该邻居的权重" 总和大
+   *
+   * 最小路径权重集合里不存在这个节点，或者最小路径权重集合
+   * 里已经有记录了，但是相同目标节点的最新的路径权重更小，
+   * 就可以更新最小路径权重集合
+   *
+   * 等等，还需要满足个条件：已经处理过的节点，在查询最小路
+   * 径权重节点时本就需要忽略，所以索性就不处理了
+   */
+  if (
+    (!ins.pathCosts.get(neighborName) ||
+      ins.pathCosts.get(neighborName) > tempNewPathCost) &&
+    !ins.processed.has(neighborName)
+  ) {
+    // if (ins.pathCosts.get(neighborName)) {
+    //   console.log(`${neighborName} 已有路径消耗记录`);
+    // }
+
+    // if (!ins.pathCosts.get(neighborName)) {
+    //   console.log(`${neighborName} 没有路径消耗记录，初始化`);
+    // }
+
+    // if (ins.pathCosts.get(neighborName) > tempNewPathCost) {
+    //   console.log(
+    //     `${neighborName} 的既有消耗记录是 ${ins.pathCosts.get(
+    //       neighborName,
+    //     )}，比目前最少权重节点 ${cheapestNodeName}（${cheapestNodeCost}） + 它到 ${neighborName} 节点的消耗（${neighborCost}）还要大，所以更新为后者之和 ${tempNewPathCost}`,
+    //   );
+    // }
+
+    ins.pathCosts.set(neighborName, tempNewPathCost); // 添加/更新邻居的消耗
+    ins.order.set(neighborName, cheapestNodeName); // 键先值后，即：当前节点被排在该邻居的后头，记录导致该消耗的前一个节点是谁
+    // 当前节点到它的邻居们，找出最小消耗的组合，记录这个组合，以及消耗值
+  }
+}
+
+/**
+ * 特性：
+ * 1. 可重复增加相同权重
+ * 2. 有向
+ * 3. 单源
+ * 4. 赋权
+ * 5. 无负权重
+ * 6. 无环
+ * 7. 多叉树
+ */
 export function addEdge(fromNodeId, forwardNodeId, weight, ins) {
   if (ins.content.size === 0) {
     ins.update('sourceNode', fromNodeId);
@@ -129,7 +207,6 @@ export function addEdge(fromNodeId, forwardNodeId, weight, ins) {
   }
 
   // 不合法：如果 content 不是空的，但 fromNodeId 并不存在
-  // 确保是多叉树
   if (ins.content.size !== 0 && !ins.content.get(fromNodeId)) {
     // console.log(`不合法：${fromNodeId} 节点不存在`);
     return -1;
@@ -142,8 +219,8 @@ export function addEdge(fromNodeId, forwardNodeId, weight, ins) {
    * 3. 开始节点无历史路径，合法
    */
   if (ins.acyclic && ins.content.size !== 0) {
-    // console.log(detect(fromNodeId, forwardNodeId, ins));
-    if (detect(fromNodeId, forwardNodeId, ins) === -1) {
+    // console.log(isAcyclic(fromNodeId, forwardNodeId, ins));
+    if (isAcyclic(fromNodeId, forwardNodeId, ins) === -1) {
       return -1;
     }
   }
@@ -180,76 +257,15 @@ export function addEdge(fromNodeId, forwardNodeId, weight, ins) {
   return 1;
 }
 
-function clearInstanceSideEffectData(ins) {
-  // console.log('清空查找副作用数据');
-  ins.processed.clear();
-  ins.order.clear();
-  ins.pathCosts.clear();
-}
-
-// 已在 find 函数处确保 getCheapestNode() 每次从最小体积的 pathCosts 集合中寻找到最少权重节点
-function getCheapestNode(ins) {
-  let tmpCost = Number.POSITIVE_INFINITY;
-  let tmpNode = null;
-
-  // TODO: 1000 条数据的话，难道遍历 1000 次么
-  ins.pathCosts.forEach((nodeCost, nodeName) => {
-    /**
-     * costs = [ [ 'two', 5 ], [ 'five', 9 ] ]
-     * 一旦 two 被设置到 tmpCost 中，因为 nodeCost < tmpCost 才会更新 tmpCost，而 five 节点
-     * 的消耗大于最新的 tmpcost 所以不会更新 tmpCost，进而确保每次返回的都是最小消耗节点
-     *
-     * nodeCost 与 tmpCost 也不会更新 tmpCost，既然是一样的，的确没必要更新
-     */
-    if (nodeCost < tmpCost) {
-      tmpCost = nodeCost;
-      tmpNode = nodeName;
-    }
-  });
-
-  return [tmpNode, tmpCost];
-}
-
-// 查找最短路径时的副作用
-function findEffect(neighbor, cheapestNode, ins) {
-  const [cheapestNodeName, cheapestNodeCost] = cheapestNode;
-  const [neighborName, neighborCost] = neighbor;
-
-  const tempNewPathCost = cheapestNodeCost + neighborCost;
-
-  /**
-   * 如果邻居还没有消耗记录，或者，邻居有消耗记录，但是它的
-   * 消耗比 "当前节点的权重 + 该邻居的权重" 总和大
-   */
-  if (
-    (!ins.pathCosts.get(neighborName) ||
-      ins.pathCosts.get(neighborName) > tempNewPathCost) &&
-    !ins.processed.has(neighborName)
-  ) {
-    // if (ins.pathCosts.get(neighborName)) {
-    //   console.log(`${neighborName} 已有路径消耗记录`);
-    // }
-
-    // if (!ins.pathCosts.get(neighborName)) {
-    //   console.log(`${neighborName} 没有路径消耗记录，初始化`);
-    // }
-
-    // if (ins.pathCosts.get(neighborName) > tempNewPathCost) {
-    //   console.log(
-    //     `${neighborName} 的既有消耗记录是 ${ins.pathCosts.get(
-    //       neighborName,
-    //     )}，比目前最少权重节点 ${cheapestNodeName}（${cheapestNodeCost}） + 它到 ${neighborName} 节点的消耗（${neighborCost}）还要大，所以更新为后者之和 ${tempNewPathCost}`,
-    //   );
-    // }
-
-    ins.pathCosts.set(neighborName, tempNewPathCost); // 添加/更新邻居的消耗
-    ins.order.set(neighborName, cheapestNodeName); // 键先值后，即：当前节点被排在该邻居的后头，记录导致该消耗的前一个节点是谁
-    // 当前节点到它的邻居们，找出最小消耗的组合，记录这个组合，以及消耗值
-  }
-}
-
+/**
+ * 反向寻找返回 -1
+ * 目标节点不存在返回 -1
+ */
 export function find({ startNode, endNode, graph: ins }) {
   ins.update('pathCosts', ins.content.get(startNode).childs);
+
+  // console.log(ins.pathCosts);
+  // console.log('开始寻找 \n');
 
   let cheapestNode = getCheapestNode(ins);
 
@@ -258,6 +274,8 @@ export function find({ startNode, endNode, graph: ins }) {
   };
 
   // let loop = 0; // 循环序号，仅用于调试
+
+  // 循环条件 ins.pathCost.size !==0 / cheapestNode[0] !== null 都可以
   while (cheapestNode[0] !== null) {
     // loop += 1;
     // console.log(`start ${loop}`);
@@ -270,10 +288,7 @@ export function find({ startNode, endNode, graph: ins }) {
 
     // console.log('cheapestNodeNeighbors', cheapestNodeNeighbors);
 
-    if (cheapestNodeNeighbors.size === 0) {
-      // console.log('最少权重路径终点没有邻居了，也没必要爬别的节点了');
-      break;
-    }
+    //! 测试用例 G11, find({ startNode: 'one', endNode: 'what', graph }); 即使节点邻居为空，循环依然继续
 
     if (cheapestNodeNeighbors.size === 1) {
       // console.log(`最少权重路径终点 ${cheapestNodeName} 有 1 个邻居`);
@@ -295,7 +310,14 @@ export function find({ startNode, endNode, graph: ins }) {
     // console.log(`标记已爬过的节点 ${cheapestNodeName}`);
     ins.processed.add(cheapestNodeName);
 
-    // 确保 getCheapestNode() 每次从最小体积的 pathCosts 集合中寻找到最少权重节点
+    // console.log(`更新最短路径权重为 ${cheapestNode[1]}`);
+    ins.update('shortestPathWeight', cheapestNode[1]);
+
+    /**
+     * 查询最小路径权重节点时，反正都要忽略已爬过的节点，不如直接删除了，还
+     * 可以确保 getCheapestNode() 每次从最小体积的 pathCosts 集合中寻
+     * 找到最少权重节点
+     */
     ins.pathCosts.delete(cheapestNodeName);
 
     // console.log(
@@ -310,7 +332,7 @@ export function find({ startNode, endNode, graph: ins }) {
     // console.log('完整权重记录', ins.pathCosts);
 
     if (cheapestNodeName === endNode) {
-      // console.log(`最实惠的路径终点即 ${endNode}，没必要爬别的节点了`);
+      // console.log(`最小路径权重节点的子节点中最小的那个节点如果已经是目标节点 ${endNode}，没必要爬别的节点了`);
       break;
     }
 
@@ -348,7 +370,7 @@ export function find({ startNode, endNode, graph: ins }) {
 
       return road;
     },
-    weight: ins.pathCosts.get(endNode),
+    weight: ins.shortestPathWeight,
   };
 }
 
