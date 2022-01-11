@@ -1,3 +1,31 @@
+/* eslint-disable no-console */
+
+export function detect(fromNodeId, forwardNodeId, ins) {
+  let tmp = 1;
+  let n = 0;
+
+  const parents = ins.content.get(fromNodeId).parent;
+  const entries = parents.entries();
+
+  while (parents.size !== 0 && n < parents.size) {
+    if (Array.from(parents).indexOf(forwardNodeId) !== -1) {
+      tmp = -1;
+      break;
+    }
+    const parentNodeId = entries.next().value[0];
+    const s = detect(parentNodeId, forwardNodeId, ins);
+
+    if (s === -1) {
+      tmp = -1;
+      break;
+    }
+
+    n += 1;
+  }
+
+  return tmp;
+}
+
 function updateNodeSource(fromNodeId, forwardNodeId, ins) {
   const forwardSrc = ins.content.get(forwardNodeId).source;
   const fromSrc = ins.content.get(fromNodeId).source;
@@ -70,7 +98,7 @@ function createOrUpdateForwardNode(ins, fromNodeId, forwardNodeId) {
 // TODO: 可重复设置吗？
 export function addEdge(fromNodeId, forwardNodeId, weight, ins) {
   if (ins.content.size === 0) {
-    ins.sourceNode = fromNodeId;
+    ins.update('sourceNode', fromNodeId);
   }
 
   // 不合法：权重不可以是负的
@@ -119,7 +147,7 @@ export function addEdge(fromNodeId, forwardNodeId, weight, ins) {
 
   // 更新图深度
   if (ins.content.get(forwardNodeId).depth > ins.depth) {
-    ins.depth = ins.content.get(forwardNodeId).depth;
+    ins.update('depth', ins.content.get(forwardNodeId).depth);
   }
 
   // 创建结束节点溯源记录
@@ -141,6 +169,9 @@ export function grapher() {
     acyclic: false,
     depth: 0,
     groupByDepth: new Map(),
+    update(key, value) {
+      this[key] = value;
+    },
   };
 }
 
@@ -172,61 +203,66 @@ function findEffect(neighbor, cheapestNode, ins) {
 
   const [neighborName, neighborCost] = neighbor;
 
-  let newPathCost = cheapestNodeCost + neighborCost;
+  const tempNewPathCost = cheapestNodeCost + neighborCost;
   /**
    * 如果邻居还没有消耗记录，或者，邻居有消耗记录，但是它的
    * 消耗比 "当前节点的权重 + 该邻居的权重" 总和大
    */
   if (
     !ins.pathCosts.get(neighborName) ||
-    ins.pathCosts.get(neighborName) > newPathCost
+    ins.pathCosts.get(neighborName) > tempNewPathCost
   ) {
     if (ins.pathCosts.get(neighborName)) {
-      console.log(`${neighborName} 已有路径消耗记录`);
+      // console.log(`${neighborName} 已有路径消耗记录`);
     }
 
     if (!ins.pathCosts.get(neighborName)) {
-      console.log(`${neighborName} 没有路径消耗记录，初始化`);
+      // console.log(`${neighborName} 没有路径消耗记录，初始化`);
     }
 
-    if (ins.pathCosts.get(neighborName) > newPathCost) {
-      console.log(
-        `${neighborName} 的既有消耗记录是 ${ins.pathCosts.get(
-          neighborName,
-        )}，比目前最少权重节点 ${cheapestNodeName}（${cheapestNodeCost}） + 它到 ${neighborName} 节点的消耗（${neighborCost}）还要大，所以更新为后者之和 ${newPathCost}`,
-      );
+    if (ins.pathCosts.get(neighborName) > tempNewPathCost) {
+      // console.log(
+      //   `${neighborName} 的既有消耗记录是 ${ins.pathCosts.get(
+      //     neighborName,
+      //   )}，比目前最少权重节点 ${cheapestNodeName}（${cheapestNodeCost}） + 它到 ${neighborName} 节点的消耗（${neighborCost}）还要大，所以更新为后者之和 ${tempNewPathCost}`,
+      // );
     }
 
-    ins.pathCosts.set(neighborName, newPathCost); // 添加/更新邻居的消耗
+    ins.pathCosts.set(neighborName, tempNewPathCost); // 添加/更新邻居的消耗
     ins.order.set(neighborName, cheapestNodeName); // 键先值后，即：当前节点被排在该邻居的后头，记录导致该消耗的前一个节点是谁
     // 当前节点到它的邻居们，找出最小消耗的组合，记录这个组合，以及消耗值
   }
 }
 
 export function find({ startNode, endNode, graph: ins }) {
-  ins.pathCosts = ins.content.get(startNode).childs;
+  ins.update('pathCosts', ins.content.get(startNode).childs);
+
   let cheapestNode = getCheapestNode(ins);
 
-  let loop = 0;
+  const traverseNeighborsOfCheapestNode = (neighborCost, neighborName) => {
+    findEffect([neighborName, neighborCost], cheapestNode, ins);
+  };
+
+  // let loop = 0; // 循环序号，仅用于调试
   while (cheapestNode[0] !== null) {
-    loop++;
-    console.log(`start ${loop}`);
+    // loop += 1;
+    // console.log(`start ${loop}`);
 
     const cheapestNodeName = cheapestNode[0];
 
-    console.log('cheapestNodeName', cheapestNodeName);
+    // console.log('cheapestNodeName', cheapestNodeName);
 
     const cheapestNodeNeighbors = ins.content.get(cheapestNodeName).childs;
 
-    console.log('cheapestNodeNeighbors', cheapestNodeNeighbors);
+    // console.log('cheapestNodeNeighbors', cheapestNodeNeighbors);
 
     if (cheapestNodeNeighbors.size === 0) {
-      console.log('最少权重路径终点没有邻居了，也没必要爬别的节点了');
+      // console.log('最少权重路径终点没有邻居了，也没必要爬别的节点了');
       break;
     }
 
     if (cheapestNodeNeighbors.size === 1) {
-      console.log(`最少权重路径终点 ${cheapestNodeName} 有 1 个邻居`);
+      // console.log(`最少权重路径终点 ${cheapestNodeName} 有 1 个邻居`);
       // TODO: 但，"2 次数据转换"，"1 次循环"，两者哪个更耗时呢？
       const neighbor = Object.entries(
         Object.fromEntries(cheapestNodeNeighbors),
@@ -236,35 +272,35 @@ export function find({ startNode, endNode, graph: ins }) {
     }
 
     if (cheapestNodeNeighbors.size > 1) {
-      console.log(`最少权重路径终点 ${cheapestNodeName} 有多个邻居`);
+      // console.log(`最少权重路径终点 ${cheapestNodeName} 有多个邻居`);
       cheapestNodeNeighbors.forEach((neighborCost, neighborName) => {
-        findEffect([neighborName, neighborCost], cheapestNode, ins);
+        traverseNeighborsOfCheapestNode(neighborCost, neighborName);
       });
     }
 
-    console.log(`标记已爬过的节点 ${cheapestNodeName}`);
+    // console.log(`标记已爬过的节点 ${cheapestNodeName}`);
     ins.processed.add(cheapestNodeName);
 
-    console.log(
-      '目前的可用权重记录',
-      new Map(
-        Object.entries(Object.fromEntries(ins.pathCosts)).filter(
-          (cur) => !ins.processed.has(cur[0]),
-        ),
-      ),
-    );
+    // console.log(
+    //   '目前的可用权重记录',
+    //   new Map(
+    //     Object.entries(Object.fromEntries(ins.pathCosts)).filter(
+    //       (cur) => !ins.processed.has(cur[0]),
+    //     ),
+    //   ),
+    // );
 
-    console.log('完整权重记录', ins.pathCosts);
+    // console.log('完整权重记录', ins.pathCosts);
 
     if (cheapestNodeName === endNode) {
-      console.log(`最实惠的路径终点即 ${endNode}，没必要爬别的节点了`);
+      // console.log(`最实惠的路径终点即 ${endNode}，没必要爬别的节点了`);
       break;
     }
 
     cheapestNode = getCheapestNode(ins); // 找到消耗记录里消耗最少的节点
-    console.log(
-      `已爬过节点 ${cheapestNodeName}，接下来爬 ${cheapestNode[0]} \n`,
-    );
+    // console.log(
+    //   `已爬过节点 ${cheapestNodeName}，接下来爬 ${cheapestNode[0]} \n`,
+    // );
   }
 
   return {
@@ -320,7 +356,7 @@ export function deleteNode(nodeId, ins) {
     }
 
     // console.log("删除以当前节点为父节点的子节点的父节点记录");
-    const childs = ins.content.get(nodeId).childs;
+    const { childs } = ins.content.get(nodeId);
     childs.forEach((val, key) => {
       // console.log(nodeId);
       ins.content.get(key).parent.delete(nodeId);
@@ -347,7 +383,7 @@ export function deleteDependence(nodeOneId, nodeTwoId, ins) {
   if (ins.content.size === 2) {
     // console.log("deleteDependence: 目前就 2 个节点，直接清空了");
     ins.content.clear();
-    return;
+    return 1;
   }
 
   // console.log("deleteDependence: 检查俩节点是不是相邻的");
@@ -412,7 +448,9 @@ export function deleteDependence(nodeOneId, nodeTwoId, ins) {
         // console.log("不可删 A");
         return -1;
       }
-    } else if (childsFromGivenChildNode.size > 1) {
+    }
+
+    if (childsFromGivenChildNode.size > 1) {
       //! 测试用例 G9，deleteDependence('two', 'three')
 
       // console.log(`deleteDependence: 节点 "${tmp.child}" 有多个子节点`);
@@ -425,7 +463,7 @@ export function deleteDependence(nodeOneId, nodeTwoId, ins) {
 
       let can = 1;
 
-      for (let i = 0; i < childsFromGivenChildNode.size; i++) {
+      for (let i = 0; i < childsFromGivenChildNode.size; i += 1) {
         if (ins.content.get(mapIter.next().value[0]).parent.size <= 1) {
           can = -1;
           break;
@@ -435,38 +473,12 @@ export function deleteDependence(nodeOneId, nodeTwoId, ins) {
       if (can === -1) {
         // console.log(`deleteDependence: 不可删 "${tmp.child}" 节点`);
         return -1;
-      } else {
-        // console.log(`deleteDependence: 可删 "${tmp.child}" 节点`);
-        deleteNode(ins.content, tmp.child);
       }
+
+      // console.log(`deleteDependence: 可删 "${tmp.child}" 节点`);
+      deleteNode(ins.content, tmp.child);
     }
   }
 
   return 1;
-}
-
-export function detect(fromNodeId, forwardNodeId, ins) {
-  let tmp = 1;
-  let n = 0;
-
-  const parents = ins.content.get(fromNodeId).parent;
-  const entries = parents.entries();
-
-  while (parents.size !== 0 && n < parents.size) {
-    if (Array.from(parents).indexOf(forwardNodeId) !== -1) {
-      tmp = -1;
-      break;
-    }
-    const parentNodeId = entries.next().value[0];
-    const s = detect(parentNodeId, forwardNodeId, ins);
-
-    if (s === -1) {
-      tmp = -1;
-      break;
-    }
-
-    n++;
-  }
-
-  return tmp;
 }
