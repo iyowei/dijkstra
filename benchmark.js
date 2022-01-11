@@ -29,17 +29,17 @@ const foundShortestPath = find({
 });
 
 new Benchmark.Suite()
-  .add('dijkstra',  () => {
+  .add('dijkstra', () => {
     find({
       startNode: 'one',
       endNode: 'final',
       graph,
     });
   })
-  .add('path',  () => {
+  .add('path', () => {
     foundShortestPath.path;
   })
-  .on('cycle',  (event) => {
+  .on('cycle', (event) => {
     console.log(String(event.target));
   })
   .run({ async: true });
