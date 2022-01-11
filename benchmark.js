@@ -1,14 +1,7 @@
 /* eslint-disable */
 
 import Benchmark from 'benchmark';
-import {
-  grapher,
-  addEdge,
-  find,
-  deleteNode,
-  deleteDependence,
-  detect,
-} from './dijkstra.js';
+import { grapher, addEdge, find } from './dijkstra.js';
 
 const graph = grapher();
 graph.acyclic = true;
@@ -36,17 +29,17 @@ const foundShortestPath = find({
 });
 
 new Benchmark.Suite()
-  .add('dijkstra', function () {
+  .add('dijkstra',  () => {
     find({
       startNode: 'one',
       endNode: 'final',
       graph,
     });
   })
-  .add('path', function () {
+  .add('path',  () => {
     foundShortestPath.path;
   })
-  .on('cycle', function (event) {
+  .on('cycle',  (event) => {
     console.log(String(event.target));
   })
   .run({ async: true });
