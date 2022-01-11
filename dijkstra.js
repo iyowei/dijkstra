@@ -1,5 +1,22 @@
 /* eslint-disable no-console */
 
+export function grapher() {
+  return {
+    content: new Map(),
+    order: new Map(),
+    pathCosts: new Map(),
+    sourceNode: undefined,
+    processed: new Set(),
+    source: false,
+    acyclic: false,
+    depth: 0,
+    groupByDepth: new Map(),
+    update(key, value) {
+      this[key] = value;
+    },
+  };
+}
+
 export function detect(fromNodeId, forwardNodeId, ins) {
   let tmp = 1;
   let n = 0;
@@ -158,23 +175,14 @@ export function addEdge(fromNodeId, forwardNodeId, weight, ins) {
   return 1;
 }
 
-export function grapher() {
-  return {
-    content: new Map(),
-    order: new Map(),
-    pathCosts: new Map(),
-    sourceNode: undefined,
-    processed: new Set(),
-    source: false,
-    acyclic: false,
-    depth: 0,
-    groupByDepth: new Map(),
-    update(key, value) {
-      this[key] = value;
-    },
-  };
+function clearInstanceSideEffectData(ins) {
+  // console.log('清空查找副作用数据');
+  ins.processed.clear();
+  ins.order.clear();
+  ins.pathCosts.clear();
 }
 
+// 已在 find 函数处确保 getCheapestNode() 每次从最小体积的 pathCosts 集合中寻找到最少权重节点
 function getCheapestNode(ins) {
   let tmpCost = Number.POSITIVE_INFINITY;
   let tmpNode = null;
@@ -188,7 +196,7 @@ function getCheapestNode(ins) {
      *
      * nodeCost 与 tmpCost 也不会更新 tmpCost，既然是一样的，的确没必要更新
      */
-    if (nodeCost < tmpCost && !ins.processed.has(nodeName)) {
+    if (nodeCost < tmpCost) {
       tmpCost = nodeCost;
       tmpNode = nodeName;
     }
@@ -200,33 +208,34 @@ function getCheapestNode(ins) {
 // 查找最短路径时的副作用
 function findEffect(neighbor, cheapestNode, ins) {
   const [cheapestNodeName, cheapestNodeCost] = cheapestNode;
-
   const [neighborName, neighborCost] = neighbor;
 
   const tempNewPathCost = cheapestNodeCost + neighborCost;
+
   /**
    * 如果邻居还没有消耗记录，或者，邻居有消耗记录，但是它的
    * 消耗比 "当前节点的权重 + 该邻居的权重" 总和大
    */
   if (
-    !ins.pathCosts.get(neighborName) ||
-    ins.pathCosts.get(neighborName) > tempNewPathCost
+    (!ins.pathCosts.get(neighborName) ||
+      ins.pathCosts.get(neighborName) > tempNewPathCost) &&
+    !ins.processed.has(neighborName)
   ) {
-    if (ins.pathCosts.get(neighborName)) {
-      // console.log(`${neighborName} 已有路径消耗记录`);
-    }
+    // if (ins.pathCosts.get(neighborName)) {
+    //   console.log(`${neighborName} 已有路径消耗记录`);
+    // }
 
-    if (!ins.pathCosts.get(neighborName)) {
-      // console.log(`${neighborName} 没有路径消耗记录，初始化`);
-    }
+    // if (!ins.pathCosts.get(neighborName)) {
+    //   console.log(`${neighborName} 没有路径消耗记录，初始化`);
+    // }
 
-    if (ins.pathCosts.get(neighborName) > tempNewPathCost) {
-      // console.log(
-      //   `${neighborName} 的既有消耗记录是 ${ins.pathCosts.get(
-      //     neighborName,
-      //   )}，比目前最少权重节点 ${cheapestNodeName}（${cheapestNodeCost}） + 它到 ${neighborName} 节点的消耗（${neighborCost}）还要大，所以更新为后者之和 ${tempNewPathCost}`,
-      // );
-    }
+    // if (ins.pathCosts.get(neighborName) > tempNewPathCost) {
+    //   console.log(
+    //     `${neighborName} 的既有消耗记录是 ${ins.pathCosts.get(
+    //       neighborName,
+    //     )}，比目前最少权重节点 ${cheapestNodeName}（${cheapestNodeCost}） + 它到 ${neighborName} 节点的消耗（${neighborCost}）还要大，所以更新为后者之和 ${tempNewPathCost}`,
+    //   );
+    // }
 
     ins.pathCosts.set(neighborName, tempNewPathCost); // 添加/更新邻居的消耗
     ins.order.set(neighborName, cheapestNodeName); // 键先值后，即：当前节点被排在该邻居的后头，记录导致该消耗的前一个节点是谁
@@ -280,6 +289,9 @@ export function find({ startNode, endNode, graph: ins }) {
 
     // console.log(`标记已爬过的节点 ${cheapestNodeName}`);
     ins.processed.add(cheapestNodeName);
+
+    // 确保 getCheapestNode() 每次从最小体积的 pathCosts 集合中寻找到最少权重节点
+    ins.pathCosts.delete(cheapestNodeName);
 
     // console.log(
     //   '目前的可用权重记录',
@@ -365,7 +377,7 @@ export function deleteNode(nodeId, ins) {
     // console.log("删除当前节点记录");
     ins.content.delete(nodeId);
 
-    // TODO: 清空 ROAD、ORDER、PATH_COSTS
+    clearInstanceSideEffectData(ins);
 
     if (ins.content.size === 1) {
       // console.log("删除完当前节点后图中只有 1 个节点了，所以直接清空");
@@ -479,6 +491,8 @@ export function deleteDependence(nodeOneId, nodeTwoId, ins) {
       deleteNode(ins.content, tmp.child);
     }
   }
+
+  clearInstanceSideEffectData(ins);
 
   return 1;
 }
