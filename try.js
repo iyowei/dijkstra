@@ -30,12 +30,14 @@ addEdge('five', 'final', 1, graph);
 
 // deleteNode('two', graph);
 
-const { path } = find({
+const { path, qz } = find({
   startNode: 'one',
   endNode: 'final',
   graph,
 });
 
-// console.log(graph);
+// console.log(graph.pathCosts);
+// console.log(graph.processed);
 // console.log(graph.content);
 console.log('path', path);
+// console.log('qz', qz);

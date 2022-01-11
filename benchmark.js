@@ -29,15 +29,23 @@ addEdge('four', 'final', 3, graph);
 
 addEdge('five', 'final', 1, graph);
 
-const SUITE = new Benchmark.Suite();
+const foundShortestPath = find({
+  startNode: 'one',
+  endNode: 'final',
+  graph,
+});
 
-SUITE.add('dijkstra', function () {
-  find({
-    startNode: 'one',
-    endNode: 'finals',
-    graph,
-  });
-})
+new Benchmark.Suite()
+  .add('dijkstra', function () {
+    find({
+      startNode: 'one',
+      endNode: 'final',
+      graph,
+    });
+  })
+  .add('path', function () {
+    foundShortestPath.path;
+  })
   .on('cycle', function (event) {
     console.log(String(event.target));
   })
