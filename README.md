@@ -14,7 +14,6 @@
 - [APIs](#apis)
 - [性能](#性能)
 - [安装](#安装)
-- [相关](#相关)
 - [参与贡献](#参与贡献)
 - [其它](#其它)
 
@@ -209,8 +208,6 @@ pnpm add @iyowei/dijkstra
 ```shell
 yarn add @iyowei/dijkstra
 ```
-
-## 相关
 
 ## 参与贡献
 
