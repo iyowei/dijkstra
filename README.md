@@ -130,16 +130,16 @@ addEdge('four', 'final', 3, grapherInstance);
 addEdge('five', 'final', 1, grapherInstance);
 
 const foundShortestPath = find({
-  startNode: 'one',
-  endNode: 'final',
+  startNodeId: 'one',
+  endNodeId: 'final',
   grapherInstance,
 });
 
 new Benchmark.Suite()
   .add('find', () => {
     find({
-      startNode: 'one',
-      endNode: 'final',
+      startNodeId: 'one',
+      endNodeId: 'final',
       grapherInstance,
     });
   })
