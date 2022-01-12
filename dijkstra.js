@@ -15,7 +15,7 @@ export function grapher() {
     shortestPathWeight: 0,
 
     source: false,
-    acyclic: false,
+    acyclic: true,
 
     update(key, value) {
       this[key] = value;
