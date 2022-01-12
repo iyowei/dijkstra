@@ -139,7 +139,7 @@ packages:
     dev: true
 
   /benchmark/2.1.4:
-    resolution: {integrity: sha1-CfPeMckWQl1JjMLuVloOvzwqVik=}
+    resolution: {integrity: sha1-CfPeMckWQl1JjMLuVloOvzwqVik=, tarball: benchmark/download/benchmark-2.1.4.tgz}
     dependencies:
       lodash: 4.17.21
       platform: 1.3.6
@@ -373,7 +373,7 @@ packages:
     dev: true
 
   /eslint-config-airbnb-base/15.0.0_b5a36b8c1535387c8dd00eff7ec6b551:
-    resolution: {integrity: sha512-xaX3z4ZZIcFLvh2oUNvcX5oEofXda7giYmuplVxoOg5A7EXJMrUyqRgR+mhDhPK8LZ4PttFOBvCYDbX3sUoUig==}
+    resolution: {integrity: sha512-xaX3z4ZZIcFLvh2oUNvcX5oEofXda7giYmuplVxoOg5A7EXJMrUyqRgR+mhDhPK8LZ4PttFOBvCYDbX3sUoUig==, tarball: eslint-config-airbnb-base/download/eslint-config-airbnb-base-15.0.0.tgz}
     engines: {node: ^10.12.0 || >=12.0.0}
     peerDependencies:
       eslint: ^7.32.0 || ^8.2.0
@@ -388,7 +388,7 @@ packages:
     dev: true
 
   /eslint-config-prettier/8.3.0_eslint@8.6.0:
-    resolution: {integrity: sha512-BgZuLUSeKzvlL/VUjx/Yb787VQ26RU3gGjA3iiFvdsp/2bMfVIWUVP7tjxtjS0e+HP409cPlPvNkQloz8C91ew==}
+    resolution: {integrity: sha1-90cbILb+ipqSVMxoRFQgKIai3Xo=, tarball: eslint-config-prettier/download/eslint-config-prettier-8.3.0.tgz}
     hasBin: true
     peerDependencies:
       eslint: '>=7.0.0'
@@ -412,7 +412,7 @@ packages:
     dev: true
 
   /eslint-plugin-import/2.25.4_eslint@8.6.0:
-    resolution: {integrity: sha512-/KJBASVFxpu0xg1kIBn9AUa8hQVnszpwgE7Ld0lKAlx7Ie87yzEzCgSkekt+le/YVhiaosO4Y14GDAOc41nfxA==}
+    resolution: {integrity: sha512-/KJBASVFxpu0xg1kIBn9AUa8hQVnszpwgE7Ld0lKAlx7Ie87yzEzCgSkekt+le/YVhiaosO4Y14GDAOc41nfxA==, tarball: eslint-plugin-import/download/eslint-plugin-import-2.25.4.tgz}
     engines: {node: '>=4'}
     peerDependencies:
       eslint: ^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8
@@ -462,7 +462,7 @@ packages:
     dev: true
 
   /eslint/8.6.0:
-    resolution: {integrity: sha512-UvxdOJ7mXFlw7iuHZA4jmzPaUqIw54mZrv+XPYKNbKdLR0et4rf60lIZUU9kiNtnzzMzGWxMV+tQ7uG7JG8DPw==}
+    resolution: {integrity: sha512-UvxdOJ7mXFlw7iuHZA4jmzPaUqIw54mZrv+XPYKNbKdLR0et4rf60lIZUU9kiNtnzzMzGWxMV+tQ7uG7JG8DPw==, tarball: eslint/download/eslint-8.6.0.tgz}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     hasBin: true
     dependencies:
@@ -604,7 +604,7 @@ packages:
     dev: true
 
   /fsevents/2.3.2:
-    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
+    resolution: {integrity: sha1-ilJveLj99GI7cJ4Ll1xSwkwC/Ro=, tarball: fsevents/download/fsevents-2.3.2.tgz}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
     requiresBuild: true
@@ -947,7 +947,7 @@ packages:
     dev: true
 
   /microtime/3.0.0:
-    resolution: {integrity: sha512-SirJr7ZL4ow2iWcb54bekS4aWyBQNVcEDBiwAz9D/sTgY59A+uE8UJU15cp5wyZmPBwg/3zf8lyCJ5NUe1nVlQ==}
+    resolution: {integrity: sha1-0UCRS96Iqom0+f0qGGILQ1rw85s=, tarball: microtime/download/microtime-3.0.0.tgz}
     engines: {node: '>= 4.0.0'}
     requiresBuild: true
     dependencies:
@@ -966,7 +966,7 @@ packages:
     dev: true
 
   /mocha/9.1.3:
-    resolution: {integrity: sha512-Xcpl9FqXOAYqI3j79pEtHBBnQgVXIhpULjGQa7DVb0Po+VzmSIK9kanAiWLHoRR/dbZ2qpdPshuXr8l1VaHCzw==}
+    resolution: {integrity: sha1-imI75rMjgQST2Mj292Z0QPpGn9s=, tarball: mocha/download/mocha-9.1.3.tgz}
     engines: {node: '>= 12.0.0'}
     hasBin: true
     dependencies:
@@ -1166,7 +1166,7 @@ packages:
     dev: true
 
   /prettier/2.5.1:
-    resolution: {integrity: sha512-vBZcPRUR5MZJwoyi3ZoyQlc1rXeEck8KgeC9AwwOn+exuxLxq5toTRDTSaVrXHxelDMHy9zlicw8u66yxoSUFg==}
+    resolution: {integrity: sha512-vBZcPRUR5MZJwoyi3ZoyQlc1rXeEck8KgeC9AwwOn+exuxLxq5toTRDTSaVrXHxelDMHy9zlicw8u66yxoSUFg==, tarball: prettier/download/prettier-2.5.1.tgz}
     engines: {node: '>=10.13.0'}
     hasBin: true
     dev: true
