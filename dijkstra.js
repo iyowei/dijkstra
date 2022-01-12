@@ -427,12 +427,12 @@ export function deleteNode(nodeId, ins) {
 
 export function deleteDependence(nodeOneId, nodeTwoId, ins) {
   if (ins.content.size === 2) {
-    // console.log("deleteDependence: 目前就 2 个节点，直接清空了");
+    // console.log('deleteDependence: 目前就 2 个节点，直接清空了');
     ins.content.clear();
     return 1;
   }
 
-  // console.log("deleteDependence: 检查俩节点是不是相邻的");
+  // console.log('deleteDependence: 检查俩节点是不是相邻的');
   const theOne = ins.content.get(nodeOneId);
   const does = [
     theOne.parent.has(nodeTwoId),
@@ -440,13 +440,13 @@ export function deleteDependence(nodeOneId, nodeTwoId, ins) {
   ].some((cur) => cur === true);
 
   if (!does) {
-    // console.log("deleteDependence: 不相邻，退出");
+    // console.log('deleteDependence: 不相邻，退出');
     return -1;
   }
 
-  // console.log("deleteDependence: 是相邻的，继续");
+  // console.log('deleteDependence: 是相邻的，继续');
 
-  // console.log("deleteDependence: 检测哪个是父节点哪个是子节点中...");
+  // console.log('deleteDependence: 检测哪个是父节点哪个是子节点中...');
   const tmp = {
     parent: undefined,
     child: undefined,
@@ -463,7 +463,7 @@ export function deleteDependence(nodeOneId, nodeTwoId, ins) {
   }
 
   // console.log(
-  //   `deleteDependence: 检测到父节点是 "${tmp.parent}" 子节点是 "${tmp.child}"`
+  //   `deleteDependence: 检测到父节点是 "${tmp.parent}" 子节点是 "${tmp.child}"`,
   // );
 
   // console.log(`deleteDependence: 检测节点 "${tmp.child}" 有没有子节点`);
@@ -472,9 +472,9 @@ export function deleteDependence(nodeOneId, nodeTwoId, ins) {
     //! 测试用例 G3，deleteDependence('one', 'two')
 
     // console.log(
-    //   `deleteDependence: 检测节点 "${tmp.child}" 没有子节点，删除 "${tmp.child}" 节点`
+    //   `deleteDependence: 检测节点 "${tmp.child}" 没有子节点，删除 "${tmp.child}" 节点`,
     // );
-    deleteNode(ins.content, tmp.child);
+    deleteNode(tmp.child, ins);
   } else {
     // console.log(`deleteDependence: 节点 "${tmp.child}" 有子节点`);
 
@@ -482,16 +482,16 @@ export function deleteDependence(nodeOneId, nodeTwoId, ins) {
       //! 测试用例 G8，deleteDependence('two', 'three')
 
       // console.log(`deleteDependence: 节点 "${tmp.child}" 只有 1 个子节点`);
-      const childNodeId = Object.entries(
+      const childNodeId = Object.getOwnPropertyNames(
         Object.fromEntries(childsFromGivenChildNode),
-      )[0][0];
+      )[0];
 
-      // console.log("检查这个子节点有没有其它父节点，没有的话，就不能删除 A");
+      // console.log('检查这个子节点有没有其它父节点，没有的话，就不能删除 A');
       if (ins.content.get(childNodeId).parent.size > 1) {
-        // console.log("可删 A");
-        deleteNode(ins.content, tmp.child);
+        // console.log('可删 A');
+        deleteNode(tmp.child, ins);
       } else {
-        // console.log("不可删 A");
+        // console.log('不可删 A');
         return -1;
       }
     }
@@ -502,7 +502,7 @@ export function deleteDependence(nodeOneId, nodeTwoId, ins) {
       // console.log(`deleteDependence: 节点 "${tmp.child}" 有多个子节点`);
 
       // console.log(
-      //   `deleteDependence: 遍历 "${tmp.child}" 的所有子节点，只要发现有一个子节点的父节点就只有 1 个，就说明不能删除 "${tmp.child}" 节点`
+      //   `deleteDependence: 遍历 "${tmp.child}" 的所有子节点，只要发现有一个子节点的父节点就只有 1 个，就说明不能删除 "${tmp.child}" 节点`,
       // );
 
       const mapIter = childsFromGivenChildNode.entries();
@@ -522,7 +522,7 @@ export function deleteDependence(nodeOneId, nodeTwoId, ins) {
       }
 
       // console.log(`deleteDependence: 可删 "${tmp.child}" 节点`);
-      deleteNode(ins.content, tmp.child);
+      deleteNode(tmp.child, ins);
     }
   }
 
