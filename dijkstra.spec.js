@@ -43,8 +43,8 @@ describe('@iyowei/dijkstra', () => {
     addEdge('five', 'final', 1, grapherInstance);
 
     const { path } = find({
-      startNode: 'one',
-      endNode: 'what',
+      startNodeId: 'one',
+      endNodeId: 'what',
       grapherInstance,
     });
 
@@ -70,8 +70,8 @@ describe('@iyowei/dijkstra', () => {
     addEdge('five', 'final', 1, grapherInstance);
 
     const { path } = find({
-      startNode: 'one',
-      endNode: 'final',
+      startNodeId: 'one',
+      endNodeId: 'final',
       grapherInstance,
     });
 

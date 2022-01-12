@@ -32,8 +32,8 @@ addEdge('five', 'final', 1, grapherInstance); // 重复添加
 // deleteNode('five', grapherInstance);
 
 const { path, weight } = find({
-  startNode: 'one',
-  endNode: 'what',
+  startNodeId: 'one',
+  endNodeId: 'what',
   grapherInstance,
 });
 

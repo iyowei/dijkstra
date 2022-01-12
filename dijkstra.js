@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 
+// TODO: 满足 "支持多实例化，但又 Treeshaking 友好" 条件的做法还有哪些？
 export function grapher() {
   return {
     content: new Map(),
@@ -262,8 +263,9 @@ export function addEdge(fromNodeId, forwardNodeId, weight, ins) {
  * 反向寻找返回 -1
  * 目标节点不存在返回 -1
  */
-export function find({ startNode, endNode, grapherInstance: ins }) {
-  ins.update('pathCosts', ins.content.get(startNode).childs);
+// TODO: 记忆化
+export function find({ startNodeId, endNodeId, grapherInstance: ins }) {
+  ins.update('pathCosts', ins.content.get(startNodeId).childs);
 
   // console.log(ins.pathCosts);
   // console.log('开始寻找 \n');
@@ -289,7 +291,7 @@ export function find({ startNode, endNode, grapherInstance: ins }) {
 
     // console.log('cheapestNodeNeighbors', cheapestNodeNeighbors);
 
-    //! 测试用例 G11, find({ startNode: 'one', endNode: 'what', graph }); 即使节点邻居为空，循环依然继续
+    //! 测试用例 G11, find({ startNodeId: 'one', endNodeId: 'what', graph }); 即使节点邻居为空，循环依然继续
 
     if (cheapestNodeNeighbors.size === 1) {
       // console.log(`最少权重路径终点 ${cheapestNodeName} 有 1 个邻居`);
@@ -332,8 +334,8 @@ export function find({ startNode, endNode, grapherInstance: ins }) {
 
     // console.log('完整权重记录', ins.pathCosts);
 
-    if (cheapestNodeName === endNode) {
-      // console.log(`最小路径权重节点的子节点中最小的那个节点如果已经是目标节点 ${endNode}，没必要爬别的节点了`);
+    if (cheapestNodeName === endNodeId) {
+      // console.log(`最小路径权重节点的子节点中最小的那个节点如果已经是目标节点 ${endNodeId}，没必要爬别的节点了`);
       break;
     }
 
@@ -346,34 +348,34 @@ export function find({ startNode, endNode, grapherInstance: ins }) {
   return {
     get path() {
       // TODO: 提供参数构造器，如果用户未提供不存在的节点，提示的同时使用默认节点查询，避免这里的判断影响性能
-      if (!ins.content.has(startNode) || !ins.content.has(endNode)) {
+      if (!ins.content.has(startNodeId) || !ins.content.has(endNodeId)) {
         // console.log('未找到节点');
         return null;
       }
 
       if (
-        ins.content.get(endNode).depth - ins.content.get(startNode).depth ===
+        ins.content.get(endNodeId).depth - ins.content.get(startNodeId).depth ===
         1
       ) {
         // 深度相邻
-        return [startNode, endNode];
+        return [startNodeId, endNodeId];
       }
 
-      if (!ins.order.has(endNode)) {
+      if (!ins.order.has(endNodeId)) {
         // 未找到最短路径
         return null;
       }
 
-      const SHORTEST_PATH = [endNode];
+      const SHORTEST_PATH = [endNodeId];
 
-      let s = ins.order.get(endNode);
+      let s = ins.order.get(endNodeId);
 
       while (s) {
         SHORTEST_PATH.unshift(s);
         s = ins.order.get(s);
       }
 
-      SHORTEST_PATH.unshift(startNode);
+      SHORTEST_PATH.unshift(startNodeId);
 
       return SHORTEST_PATH;
     },
