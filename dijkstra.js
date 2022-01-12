@@ -354,7 +354,8 @@ export function find({ startNodeId, endNodeId, grapherInstance: ins }) {
       }
 
       if (
-        ins.content.get(endNodeId).depth - ins.content.get(startNodeId).depth ===
+        ins.content.get(endNodeId).depth -
+          ins.content.get(startNodeId).depth ===
         1
       ) {
         // 深度相邻
