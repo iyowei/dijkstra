@@ -3,29 +3,29 @@
 import Benchmark from 'benchmark';
 import { grapher, addEdge, find } from './dijkstra.js';
 
-const graph = grapher();
-graph.acyclic = true;
-graph.source = true;
+const grapherInstance = grapher();
+grapherInstance.acyclic = true;
+grapherInstance.source = true;
 
-addEdge('one', 'two', 5, graph);
-addEdge('one', 'three', 2, graph);
-addEdge('three', 'two', 8, graph);
+addEdge('one', 'two', 5, grapherInstance);
+addEdge('one', 'three', 2, grapherInstance);
+addEdge('three', 'two', 8, grapherInstance);
 
-addEdge('three', 'five', 7, graph);
+addEdge('three', 'five', 7, grapherInstance);
 
-addEdge('two', 'four', 4, graph);
+addEdge('two', 'four', 4, grapherInstance);
 
-addEdge('two', 'five', 2, graph);
-addEdge('four', 'five', 6, graph);
+addEdge('two', 'five', 2, grapherInstance);
+addEdge('four', 'five', 6, grapherInstance);
 
-addEdge('four', 'final', 3, graph);
+addEdge('four', 'final', 3, grapherInstance);
 
-addEdge('five', 'final', 1, graph);
+addEdge('five', 'final', 1, grapherInstance);
 
 const foundShortestPath = find({
   startNode: 'one',
   endNode: 'final',
-  graph,
+  grapherInstance,
 });
 
 new Benchmark.Suite()
@@ -33,7 +33,7 @@ new Benchmark.Suite()
     find({
       startNode: 'one',
       endNode: 'final',
-      graph,
+      grapherInstance,
     });
   })
   .add('path', () => {

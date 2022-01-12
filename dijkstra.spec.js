@@ -26,26 +26,26 @@ addEdge('five', 'final', 1, graphFlower);
 describe('@iyowei/dijkstra', () => {
   it('图 G19 中没有 ID 为 "what" 的节点，`find({ startNode: "one", endNode: "what", graph })`结果应为 "-1"', () => {
     // 图 G19
-    const graphOne = grapher();
+    const grapherInstance = grapher();
 
-    addEdge('one', 'two', 5, graphOne);
-    addEdge('one', 'three', 2, graphOne);
+    addEdge('one', 'two', 5, grapherInstance);
+    addEdge('one', 'three', 2, grapherInstance);
 
-    addEdge('three', 'two', 8, graphOne);
-    addEdge('three', 'five', 7, graphOne);
+    addEdge('three', 'two', 8, grapherInstance);
+    addEdge('three', 'five', 7, grapherInstance);
 
-    addEdge('two', 'four', 4, graphOne);
-    addEdge('two', 'five', 2, graphOne);
+    addEdge('two', 'four', 4, grapherInstance);
+    addEdge('two', 'five', 2, grapherInstance);
 
-    addEdge('four', 'five', 6, graphOne);
-    addEdge('four', 'final', 3, graphOne);
+    addEdge('four', 'five', 6, grapherInstance);
+    addEdge('four', 'final', 3, grapherInstance);
 
-    addEdge('five', 'final', 1, graphOne);
+    addEdge('five', 'final', 1, grapherInstance);
 
     const { path } = find({
       startNode: 'one',
       endNode: 'what',
-      graph: graphOne,
+      grapherInstance,
     });
 
     assert.equal(path, null);
@@ -53,26 +53,26 @@ describe('@iyowei/dijkstra', () => {
 
   it('图 G19 `find({ startNode: "one", endNode: "what", graph })`结果应为 `["one", "two", "five", "final"]`', () => {
     // 图 G19
-    const graphOne = grapher();
+    const grapherInstance = grapher();
 
-    addEdge('one', 'two', 5, graphOne);
-    addEdge('one', 'three', 2, graphOne);
+    addEdge('one', 'two', 5, grapherInstance);
+    addEdge('one', 'three', 2, grapherInstance);
 
-    addEdge('three', 'two', 8, graphOne);
-    addEdge('three', 'five', 7, graphOne);
+    addEdge('three', 'two', 8, grapherInstance);
+    addEdge('three', 'five', 7, grapherInstance);
 
-    addEdge('two', 'four', 4, graphOne);
-    addEdge('two', 'five', 2, graphOne);
+    addEdge('two', 'four', 4, grapherInstance);
+    addEdge('two', 'five', 2, grapherInstance);
 
-    addEdge('four', 'five', 6, graphOne);
-    addEdge('four', 'final', 3, graphOne);
+    addEdge('four', 'five', 6, grapherInstance);
+    addEdge('four', 'final', 3, grapherInstance);
 
-    addEdge('five', 'final', 1, graphOne);
+    addEdge('five', 'final', 1, grapherInstance);
 
     const { path } = find({
       startNode: 'one',
       endNode: 'final',
-      graph: graphOne,
+      grapherInstance,
     });
 
     assert.deepEqual(path, ['one', 'two', 'five', 'final']);
@@ -80,24 +80,24 @@ describe('@iyowei/dijkstra', () => {
 
   it('图 G19 尝试删除 "two" 节点到 "four" 关联，可删', () => {
     // 图 G19
-    const graph = grapher();
+    const grapherInstance = grapher();
 
-    addEdge('one', 'two', 5, graph);
-    addEdge('one', 'three', 2, graph);
+    addEdge('one', 'two', 5, grapherInstance);
+    addEdge('one', 'three', 2, grapherInstance);
 
-    addEdge('three', 'two', 8, graph);
-    addEdge('three', 'five', 7, graph);
+    addEdge('three', 'two', 8, grapherInstance);
+    addEdge('three', 'five', 7, grapherInstance);
 
-    addEdge('two', 'four', 4, graph);
-    addEdge('two', 'five', 2, graph);
+    addEdge('two', 'four', 4, grapherInstance);
+    addEdge('two', 'five', 2, grapherInstance);
 
-    addEdge('four', 'five', 6, graph);
-    addEdge('four', 'final', 3, graph);
+    addEdge('four', 'five', 6, grapherInstance);
+    addEdge('four', 'final', 3, grapherInstance);
 
-    addEdge('five', 'final', 1, graph);
+    addEdge('five', 'final', 1, grapherInstance);
 
-    deleteDependence('two', 'four', graph);
+    deleteDependence('two', 'four', grapherInstance);
 
-    assert.equal(graph.content.has('four'), false);
+    assert.equal(grapherInstance.content.has('four'), false);
   });
 });

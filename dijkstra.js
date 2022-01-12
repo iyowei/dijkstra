@@ -25,7 +25,7 @@ export function grapher() {
 
 // 检测是否无环
 export function isAcyclic(fromNodeId, forwardNodeId, ins) {
-  let tmp = 1;
+  let tmp = true;
   let n = 0;
 
   const parents = ins.content.get(fromNodeId).parent;
@@ -33,14 +33,14 @@ export function isAcyclic(fromNodeId, forwardNodeId, ins) {
 
   while (parents.size !== 0 && n < parents.size) {
     if (Array.from(parents).indexOf(forwardNodeId) !== -1) {
-      tmp = -1;
+      tmp = false;
       break;
     }
     const parentNodeId = entries.next().value[0];
     const s = isAcyclic(parentNodeId, forwardNodeId, ins);
 
-    if (s === -1) {
-      tmp = -1;
+    if (!s) {
+      tmp = false;
       break;
     }
 
@@ -221,7 +221,7 @@ export function addEdge(fromNodeId, forwardNodeId, weight, ins) {
    */
   if (ins.acyclic && ins.content.size !== 0) {
     // console.log(isAcyclic(fromNodeId, forwardNodeId, ins));
-    if (isAcyclic(fromNodeId, forwardNodeId, ins) === -1) {
+    if (!isAcyclic(fromNodeId, forwardNodeId, ins)) {
       return -1;
     }
   }
@@ -262,7 +262,7 @@ export function addEdge(fromNodeId, forwardNodeId, weight, ins) {
  * 反向寻找返回 -1
  * 目标节点不存在返回 -1
  */
-export function find({ startNode, endNode, graph: ins }) {
+export function find({ startNode, endNode, grapherInstance: ins }) {
   ins.update('pathCosts', ins.content.get(startNode).childs);
 
   // console.log(ins.pathCosts);

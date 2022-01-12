@@ -8,36 +8,36 @@ import {
   deleteDependence,
 } from './dijkstra.js';
 
-const graph = grapher();
-graph.acyclic = true;
-graph.source = true;
+const grapherInstance = grapher();
+grapherInstance.acyclic = true;
+grapherInstance.source = true;
 
-addEdge('one', 'two', 5, graph);
-addEdge('one', 'three', 2, graph);
+addEdge('one', 'two', 5, grapherInstance);
+addEdge('one', 'three', 2, grapherInstance);
 
-addEdge('three', 'two', 8, graph);
-addEdge('three', 'five', 1, graph); // 1/7
+addEdge('three', 'two', 8, grapherInstance);
+addEdge('three', 'five', 1, grapherInstance); // 1/7
 
-addEdge('two', 'four', 4, graph);
-addEdge('two', 'five', 2, graph);
+addEdge('two', 'four', 4, grapherInstance);
+addEdge('two', 'five', 2, grapherInstance);
 
-addEdge('four', 'five', 6, graph);
-addEdge('four', 'final', 3, graph);
-addEdge('four', 'what', 1, graph); // 多叉树
+addEdge('four', 'five', 6, grapherInstance);
+addEdge('four', 'final', 3, grapherInstance);
+addEdge('four', 'what', 1, grapherInstance); // 多叉树
 
-addEdge('five', 'final', 1, graph);
-addEdge('five', 'final', 1, graph); // 重复添加
+addEdge('five', 'final', 1, grapherInstance);
+addEdge('five', 'final', 1, grapherInstance); // 重复添加
 
-// deleteNode('two', graph);
-// deleteNode('five', graph);
+// deleteNode('two', grapherInstance);
+// deleteNode('five', grapherInstance);
 
 const { path, weight } = find({
   startNode: 'one',
   endNode: 'what',
-  graph,
+  grapherInstance,
 });
 
-console.log(graph);
-console.log(graph.content);
+console.log(grapherInstance);
+console.log(grapherInstance.content);
 console.log('path', path);
 console.log('weight', weight);
