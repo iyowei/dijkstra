@@ -29,7 +29,7 @@ const foundShortestPath = find({
 });
 
 new Benchmark.Suite()
-  .add('dijkstra', () => {
+  .add('find', () => {
     find({
       startNode: 'one',
       endNode: 'final',
